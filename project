@@ -1,0 +1,79 @@
+import random
+
+three_point_percentage = 0.35
+two_point_percentage = 0.50
+free_throw_percentage = 0.75
+offensive_rebound_precentage = .30
+overtime_win_percentage = .50
+
+time_remaining = 30
+score_difference = -3
+simulations = 10000
+
+def simulate_game(strategy, simulations):
+    wins = 0
+    total_points = 0
+
+    for _ in range(simulations):
+        time_left = time_remaining 
+        score = score_difference 
+
+        if strategy == "three_pointer":
+            while time_left > 0:
+                if random.random() < three_point_percentage:
+                    score += 3
+                    time_left -= 5
+                    break
+                else:
+                    time_left -= 5
+                    if random.random() < offensive_rebound_precentage:
+                        continue
+                    else:
+                        break
+        elif strategy == "foul":
+            while time_left > 0:
+                free_throw_made = sum(random.random() < free_throw_percentage for _ in range(2))
+                score -= free_throw_made
+                time_left -=5
+
+                if free_throw_made < 2 and random.random() < offensive_rebound_precentage:
+                    continue
+                else:
+                    break
+
+            if score < 0 and time_left > 0:
+                if random.random() < two_point_percentage:
+                    score += 2
+                    time_left -= 5
+        if score < 0 and time_left <= 0:
+            free_throw_made = sum(random.random() < free_throw_percentage for _ in range(2))
+            score -= free_throw_made
+
+            if score < 0:
+                if random.random() < overtime_win_percentage:
+                    wins += 1
+            else:
+                wins += 1
+        
+        elif score == 0:
+            if random.random() < overtime_win_percentage:
+                wins += 1
+
+        elif score > 0:
+            wins += 1
+
+        total_points += score_difference + score
+
+    win_percentage = (wins / simulations) * 100
+    average_points = total_points / simulations 
+    return win_percentage, average_points
+
+three_pointer_results = simulate_game("three_pointer" , simulations)
+foul_results = simulate_game("foul", simulations) 
+
+print(f"Three-Pointer Stratgey: {three_pointer_results[0]:.2f}% wins, {three_pointer_results[1]:.2f} avg points")
+print(f"Foul Stratgey: {foul_results[0]:.2f}% wins, {foul_results[1]:.2f} avg points")
+
+
+
+
